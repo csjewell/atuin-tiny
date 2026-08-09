@@ -1,0 +1,97 @@
+name: Build using Depot
+
+on:
+  workflow-dispatch:
+
+  push:
+    branches: [release]
+
+jobs:
+  publish:
+    concurrency:
+      group: ${{ github.ref }}-docker
+      cancel-in-progress: true
+    permissions:
+      # allow issuing OIDC tokens for this workflow run
+      id-token: write
+      # allow for reading the repo contents
+      contents: read
+      # Allow for pushing to packages
+      packages: write
+    runs-on: depot-ubuntu-24.04
+    strategy:
+      matrix:
+        atuin_version:
+#          - 18.17.1
+#          - 18.18.1
+          - 18.19.0
+#          - 18.20.0-beta.3
+    steps:
+      - name: Get Environment Variables
+        id: get_env
+        run: |
+          echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "SOURCE_DATE_EPOCH=$(date --date="$(date --iso-8601=hours)" +%s)" >> $GITHUB_ENV
+          echo 'ATUIN_INFO<<EOF' >> $GITHUB_ENV
+          cat ./atuin-build-info.json >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - run: |
+          echo '${{ fromJson(env.ATUIN_INFO).defaultVersion }}'
+
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Checkout atuin repo
+        id: checkout-atuin
+        uses: actions/checkout@v7
+        with:
+          repository: atuinsh/atuin
+          ref: v${{ matrix.atuin_version }}
+          path: atuin
+
+      - name: Setup Depot
+        id: depot-setup
+        uses: depot/setup-action@15c09a5f77a0840ad4bce955686522a257853461 # v1.7.1
+
+      - name: Login to container Registry
+        id: ghcr-login
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        env:
+          DOCKER_METADATA_SHORT_SHA_LENGTH: 9
+        with:
+          images: ghcr.io/${{ env.REPO_OWNER }}/atuin-tiny
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,priority=999,value=latest,enable={{is_default_branch && matrix.atuin_version == fromJson(env.ATUIN_INFO).defaultVersion }}
+            type=raw,priority=950,value=latest-${{ matrix.atuin-version }},enable={{is_default_branch}}
+            type=dev,priority=949,value={{branch}}-${{ matrix.atuin_version }},enable=${{is_not_default_branch}}
+            type=sha,prefix=g,suffix=-${{ matrix.atuin-version }}
+          annotations: |
+            org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
+            org.opencontainers.image.url="https://atuin.sh"
+            org.opencontainers.image.licenses="MIT"
+            org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
+            org.opencontainers.image.description=Tiny version of Atuin server image
+      - name: Build and push
+        id: build
+        uses: depot/build-push-action@98e78adca7817480b8185f474a400b451d74e287 # v1.18.0
+        with:
+          outputs: |
+            type=registry,push=true,oci-artifact=true,oci-mediatypes=true,rewrite-timestamp=true
+          platforms: linux/amd64,linux/arm64
+          file: ./${{ fromJson(env.ATUIN_INFO).containerFile[${{ matrix.atuin_version }}] }}'
+          context: atuin
+          provenance: true
+          tags: ${{ steps.meta.outputs.tags }}
+          annotations: ${{ steps.meta.outputs.annotations }}
