@@ -21,10 +21,11 @@ jobs:
     strategy:
       matrix:
         atuin_version:
-#          - 18.17.1
-#          - 18.18.1
-          - 18.19.0
-#          - 18.20.0-beta.3
+#          - v18.17.1
+#          - v18.18.1
+          - v18.19.0
+#          - v18.20.0-beta.3
+#          - main
     steps:
       - name: Checkout
         id: checkout
@@ -35,7 +36,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: atuinsh/atuin
-          ref: v${{ matrix.atuin_version }}
+          ref: ${{ matrix.atuin_version }}
           path: atuin
 
       - name: Get Environment Variables
@@ -47,7 +48,7 @@ jobs:
           cat ./atuin-build-info.json >> $GITHUB_OUTPUT
           echo -e '\nEOF' >> $GITHUB_OUTPUT
           cd atuin
-          echo "atuin_version=${ git describe --tags }" >> $GITHUB_OUTPUT
+          echo "atuin_version=$( git describe --tags )" >> $GITHUB_OUTPUT
 
       - run: |
           ls -al
@@ -82,7 +83,7 @@ jobs:
           annotations: |
             org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
             org.opencontainers.image.url="https://atuin.sh"
-            org.opencontainers.image.authors="Curtis Jewell and other contributors"
+            org.opencontainers.image.authors="Curtis Jewell, other image contributors, and Atuin contributors"
             org.opencontainers.image.version=${{ steps.info.outputs.atuin_version }}
             org.opencontainers.image.licenses="MIT"
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}

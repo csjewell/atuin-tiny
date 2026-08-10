@@ -49,7 +49,7 @@ jobs:
           cat ./atuin-build-info.json >> $GITHUB_OUTPUT
           echo -e '\nEOF' >> $GITHUB_OUTPUT
           cd atuin
-          echo "atuin_version=${ git describe --tags }" >> $GITHUB_OUTPUT
+          echo "atuin_version=$( git describe --tags )" >> $GITHUB_OUTPUT
 
       - run: |
           ls -al
