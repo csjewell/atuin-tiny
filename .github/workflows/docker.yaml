@@ -86,20 +86,20 @@ jobs:
             type=raw,priority=949,value={{branch}}-${{ steps.info.outputs.atuin_version }},enable={{is_not_default_branch}}
             type=sha,prefix=g,suffix=-${{ steps.info.outputs.atuin_version }}
           annotations: |
-            org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
-            org.opencontainers.image.url="https://atuin.sh"
-            org.opencontainers.image.authors="Curtis Jewell and other contributors"
+            org.opencontainers.image.source=https://github.com/csjewell/atuin-tiny
+            org.opencontainers.image.url=https://atuin.sh
+            org.opencontainers.image.authors=Curtis Jewell and other contributors
             org.opencontainers.image.version=${{ steps.info.outputs.atuin_version }}
-            org.opencontainers.image.licenses="MIT"
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
             org.opencontainers.image.title=Tiny Atuin Server
             org.opencontainers.image.description=Tiny version of Atuin server image
           labels: |
-            org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
-            org.opencontainers.image.url="https://atuin.sh"
-            org.opencontainers.image.authors="Curtis Jewell and other contributors"
+            org.opencontainers.image.source=https://github.com/csjewell/atuin-tiny
+            org.opencontainers.image.url=https://atuin.sh
+            org.opencontainers.image.authors=Curtis Jewell and other contributors
             org.opencontainers.image.version=${{ steps.info.outputs.atuin_version }}
-            org.opencontainers.image.licenses="MIT"
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
             org.opencontainers.image.title=Tiny Atuin Server
             org.opencontainers.image.description=Tiny version of Atuin server image
