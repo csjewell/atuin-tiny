@@ -19,11 +19,11 @@ jobs:
     strategy:
       matrix:
         atuin_version:
-#          - v18.17.1
-#          - v18.18.1
+          - v18.17.1
+          - v18.18.1
           - v18.19.0
-#          - v18.20.0-beta.3
-#          - main
+          - v18.20.0-beta.3
+          - main
     steps:
       - name: Checkout
         id: checkout
