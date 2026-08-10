@@ -75,11 +75,11 @@ jobs:
         with:
           images: ghcr.io/${{ steps.info.outputs.repo_owner }}/atuin-tiny
           flavor: |
-            latest=false:
+            latest=false
           tags: |
             type=raw,priority=999,value=latest,enable={{is_default_branch && matrix.atuin_version == fromJson(steps.info.outputs.atuin_info).defaultVersion }}
             type=raw,priority=950,value=latest-${{ steps.info.outputs.atuin_version }},enable={{is_default_branch}}
-            type=dev,priority=949,value={{branch}}-${{ steps.info.outputs.atuin_version }},enable={{is_not_default_branch}}
+            type=raw,priority=949,value={{branch}}-${{ steps.info.outputs.atuin_version }},enable={{is_not_default_branch}}
           annotations: |
             org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
             org.opencontainers.image.url="https://atuin.sh"
