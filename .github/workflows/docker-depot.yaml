@@ -51,8 +51,7 @@ jobs:
           echo "atuin_version=$( git describe --tags )" >> $GITHUB_OUTPUT
 
       - run: |
-          ls -al
-          echo '${{ fromJson(steps.info.outputs.atuin_info).defaultVersion }}'
+          echo './${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}'
 
       - name: Setup Depot
         id: depot-setup
@@ -108,7 +107,7 @@ jobs:
             type=registry,push=true,oci-artifact=true,oci-mediatypes=true,rewrite-timestamp=true
           # platforms: linux/amd64,linux/arm64 # Commented out for now.
           platforms: linux/amd64
-          file: ./${{ fromJson(steps.info.outputs.atuin_info).containerFile['${{ matrix.atuin_version }}'] }}'
+          file: ./${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}'
           context: atuin
           attests: |
             type=provenance,mode=max,version=v1

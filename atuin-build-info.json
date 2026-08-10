@@ -1,6 +1,6 @@
 {
   "defaultVersion":"v18.19.0",
-  "containerFile":{
+  "containerfile":{
     "v18.17.1": "Containerfile.v18.17",
     "v18.18.1": "Containerfile.v18.17",
     "v18.19.0": "Containerfile.v18.19",
