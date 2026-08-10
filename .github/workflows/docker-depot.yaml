@@ -70,16 +70,16 @@ jobs:
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         env:
-          DOCKER_METADATA_SHORT_SHA_LENGTH: 9
           DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
-          images: ghcr.io/${{ steps.info.outputs.repo_owner }}/atuin-tiny
+          images: |
+            ghcr.io/${{ steps.info.outputs.repo_owner }}/atuin-tiny
           flavor: |
             latest=false
           tags: |
-            type=raw,priority=999,value=latest,enable={{is_default_branch && matrix.atuin_version == fromJson(steps.info.outputs.atuin_info).defaultVersion }}
             type=raw,priority=950,value=latest-${{ steps.info.outputs.atuin_version }},enable={{is_default_branch}}
             type=raw,priority=949,value={{branch}}-${{ steps.info.outputs.atuin_version }},enable={{is_not_default_branch}}
+            type=sha,prefix=g,suffix=-${{ steps.info.outputs.atuin_version }}
           annotations: |
             org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
             org.opencontainers.image.url="https://atuin.sh"
@@ -89,7 +89,15 @@ jobs:
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
             org.opencontainers.image.title=Tiny Atuin Server
             org.opencontainers.image.description=Tiny version of Atuin server image
-            org.opencontainers.image.base.name=""
+          labels: |
+            org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
+            org.opencontainers.image.url="https://atuin.sh"
+            org.opencontainers.image.authors="Curtis Jewell, other image contributors, and Atuin contributors"
+            org.opencontainers.image.version=${{ steps.info.outputs.atuin_version }}
+            org.opencontainers.image.licenses="MIT"
+            org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
+            org.opencontainers.image.title=Tiny Atuin Server
+            org.opencontainers.image.description=Tiny version of Atuin server image
       - name: Build and push
         id: build
         uses: depot/build-push-action@98e78adca7817480b8185f474a400b451d74e287 # v1.18.0
