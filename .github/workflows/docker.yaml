@@ -7,7 +7,7 @@ jobs:
   publish:
     concurrency:
       group: ${{ github.ref }}-docker
-      cancel-in-progress: true
+      queue: 'max'
     permissions:
       # allow issuing OIDC tokens for this workflow run
       id-token: write
