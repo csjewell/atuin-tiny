@@ -50,9 +50,6 @@ jobs:
           cd atuin
           echo "atuin_version=$( git describe --tags )" >> $GITHUB_OUTPUT
 
-      - run: |
-          echo './${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}'
-
       - name: Setup Depot
         id: depot-setup
         uses: depot/setup-action@15c09a5f77a0840ad4bce955686522a257853461 # v1.7.1
