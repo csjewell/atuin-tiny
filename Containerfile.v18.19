@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 ARG BUILDKIT_SBOM_SCAN_CONTEXT=true
-FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
+FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.1-slim-trixie AS chef
 WORKDIR /app
 
 FROM chef AS planner
