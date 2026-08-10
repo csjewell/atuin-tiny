@@ -1,7 +1,7 @@
 name: Build using regular Github runner
 
 on:
-  workflow-dispatch:
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -19,23 +19,12 @@ jobs:
     strategy:
       matrix:
         atuin_version:
-#          - 18.17.1
-#          - 18.18.1
-          - 18.19.0
-#          - 18.20.0-beta.3
+#          - v18.17.1
+#          - v18.18.1
+          - v18.19.0
+#          - v18.20.0-beta.3
+#          - main
     steps:
-      - name: Get Environment Variables
-        id: get_env
-        run: |
-          echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          echo "SOURCE_DATE_EPOCH=$(date --date="$(date --iso-8601=hours)" +%s)" >> $GITHUB_ENV
-          echo 'ATUIN_INFO<<EOF' >> $GITHUB_ENV
-          cat ./atuin-build-info.json >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-
-      - run: |
-          echo '${{ fromJson(env.ATUIN_INFO).defaultVersion }}'
-
       - name: Checkout
         id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -45,11 +34,26 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: atuinsh/atuin
-          ref: v${{ matrix.atuin_version }}
+          ref: ${{ matrix.atuin_version }}
           path: atuin
           fetch-depth: 0
           persist-credentials: false
           fetch-tags: true
+
+      - name: Get Environment Variables
+        id: info
+        run: |
+          echo "repo_owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "source_date_epoch=$(date --date="$(date --iso-8601=hours)" +%s)" >> $GITHUB_OUTPUT
+          echo 'atuin_info<<EOF' >> $GITHUB_OUTPUT
+          cat ./atuin-build-info.json >> $GITHUB_OUTPUT
+          echo -e '\nEOF' >> $GITHUB_OUTPUT
+          cd atuin
+          echo "atuin_version=${ git describe --tags }" >> $GITHUB_OUTPUT
+
+      - run: |
+          ls -al
+          echo '${{ fromJson(steps.info.outputs.atuin_info).defaultVersion }}'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
@@ -73,34 +77,41 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         env:
           DOCKER_METADATA_SHORT_SHA_LENGTH: 9
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
-          images: ghcr.io/${{ env.REPO_OWNER }}/atuin-tiny
+          images: ghcr.io/${{ steps.info.outputs.repo_owner }}/atuin-tiny
           flavor: |
-            latest=false
+            latest=false:
           tags: |
-            type=raw,priority=999,value=latest,enable={{is_default_branch && matrix.atuin_version == fromJson(env.ATUIN_INFO).defaultVersion }}
-            type=raw,priority=950,value=latest-${{ matrix.atuin-version }},enable={{is_default_branch}}
-            type=dev,priority=949,value={{branch}}-${{ matrix.atuin_version }},enable=${{is_not_default_branch}}
-            type=sha,prefix=g,suffix=-${{ matrix.atuin-version }}
+            type=raw,priority=999,value=latest,enable={{is_default_branch && matrix.atuin_version == fromJson(steps.info.outputs.atuin_info).defaultVersion }}
+            type=raw,priority=950,value=latest-${{ steps.info.outputs.atuin_version }},enable={{is_default_branch}}
+            type=dev,priority=949,value={{branch}}-${{ steps.info.outputs.atuin_version }},enable={{is_not_default_branch}}
           annotations: |
             org.opencontainers.image.source="https://github.com/csjewell/atuin-tiny"
             org.opencontainers.image.url="https://atuin.sh"
+            org.opencontainers.image.authors="Curtis Jewell and other contributors"
+            org.opencontainers.image.version=${{ steps.info.outputs.atuin_version }}
             org.opencontainers.image.licenses="MIT"
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
+            org.opencontainers.image.title=Tiny Atuin Server
             org.opencontainers.image.description=Tiny version of Atuin server image
-
+            org.opencontainers.image.base.name=""
       - name: Build and push
         id: build
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        env:
+          SOURCE_DATE_EPOCH: ${{ steps.info.outputs.source_date_epoch }}
         with:
           outputs: |
             type=registry,push=true,oci-artifact=true,oci-mediatypes=true,rewrite-timestamp=true
-          platforms: linux/amd64,linux/arm64
-          file: ./${{ fromJson(env.ATUIN_INFO).containerFile[${{ matrix.atuin_version }}] }}'
+          # platforms: linux/amd64,linux/arm64 # Commented out for now.
+          platforms: linux/amd64
+          file: ./${{ fromJson(steps.info.outputs.atuin_info).containerFile['${{ matrix.atuin_version }}'] }}'
           context: atuin
           attests: |
             type=provenance,mode=max,version=v1
             type=sbom
           tags: ${{ steps.meta.outputs.tags }}
           annotations: ${{ steps.meta.outputs.annotations }}
+          labels: ${{ steps.meta.outputs.annotations }}
 

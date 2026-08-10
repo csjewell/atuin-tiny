@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1
+ARG BUILDKIT_SBOM_SCAN_CONTEXT=true
+FROM lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
+WORKDIR app
+
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS builder
+ARG BUILDKIT_SBOM_SCAN_STAGE=true
+
+# Ensure working C compile setup (not installed by default in arm64 images)
+RUN apt update && apt install build-essential libssl-dev pkg-config -y
+
+COPY --from=planner /app/recipe.json recipe.json
+# The recipe references the [patch.crates-io] axoasset path dependency, but
+# cargo-chef does not skeleton patched crates, so the real sources are needed
+COPY vendor vendor
+RUN cargo chef cook --release --recipe-path recipe.json
+
+COPY . .
+RUN cargo build --release --bin atuin-server
+
+# Note that this image is VERY minimal. Contains JUST ENOUGH of Debian Trixie to do the job.
+# It uses busybox instead of coreutils, for example.
+FROM gcr.io/distroless/cc-debian13:debug-nonroot AS server
+ARG BUILDKIT_SBOM_SCAN_STAGE=true
+LABEL \
+  org.opencontainers.image.source="https://github.com/CSJewell/atuin-tiny" \
+  org.opencontainers.image.url="https://atuin.sh" \
+  org.opencontainers.image.licenses="MIT"
+
+# Use stunnel's static version of curl
+USER root
+ADD https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-x86_64-musl-8.21.0.tar.xz /
+RUN ["/busybox/ln", "-s", "/busybox/busybox", "/bin/sh"]
+RUN adduser -D -g 'atuin user' atuin \
+ && mkdir /config \
+ && chown atuin:atuin /config \
+ && ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \
+ && mkdir -p /usr/local/bin \
+ && cd /usr/local/bin \
+ && tar xa --no-same-permissions -f /curl-linux-x86_64-musl-8.21.0.tar.xz \
+ && sha256sum -c SHA256SUMS \
+ && rm /curl-linux-x86_64-musl-8.21.0.tar.xz SHA256SUMS
+
+COPY --from=builder /app/target/release/atuin-server /usr/local/bin
+
+USER atuin
+
+WORKDIR /home/atuin/app
+
+ENV TZ=Etc/UTC
+ENV RUST_LOG=atuin_server=info
+ENV ATUIN_CONFIG_DIR=/config
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -fsS -o /dev/null "http://localhost:${ATUIN_PORT:-8888}/healthz"
+
+ENTRYPOINT ["/usr/local/bin/atuin-server"]
+

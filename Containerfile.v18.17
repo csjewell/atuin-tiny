@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1
 ARG BUILDKIT_SBOM_SCAN_CONTEXT=true
-FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.1-slim-trixie AS chef
+FROM index.docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.1-slim-trixie AS chef
 WORKDIR app
 
 FROM chef AS planner
@@ -18,11 +19,14 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --release --bin atuin-server
 
+
 # Note that this image is VERY minimal. Contains JUST ENOUGH of Debian Trixie to do the job.
 # It uses busybox instead of coreutils, for example.
+# Unfortunatelym I need the debug image to run stuff.
 FROM gcr.io/distroless/cc-debian13:debug-nonroot AS server
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
-LABEL org.opencontainers.image.source="https://github.com/CSJewell/atuin-tiny" \
+LABEL \
+  org.opencontainers.image.source="https://github.com/CSJewell/atuin-tiny" \
   org.opencontainers.image.url="https://atuin.sh" \
   org.opencontainers.image.licenses="MIT"
 
