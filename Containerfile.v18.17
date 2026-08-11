@@ -25,10 +25,10 @@ RUN cargo build --release --bin atuin-server
 # Unfortunatelym I need the debug image to run stuff.
 FROM gcr.io/distroless/cc-debian13:debug-nonroot AS server
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
-LABEL \
-  org.opencontainers.image.source="https://github.com/CSJewell/atuin-tiny" \
-  org.opencontainers.image.url="https://atuin.sh" \
-  org.opencontainers.image.licenses="MIT"
+# LABEL \
+#   org.opencontainers.image.source="https://github.com/CSJewell/atuin-tiny" \
+#   org.opencontainers.image.url="https://atuin.sh" \
+#   org.opencontainers.image.licenses="MIT"
 
 # Use stunnel's static version of curl
 USER root
