@@ -1,6 +1,12 @@
 # syntax=docker/dockerfile:1
 ARG BUILDKIT_SBOM_SCAN_CONTEXT=true
 FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
+
+RUN cargo install sccache --locked
+
+ENV RUSTC_WRAPPER=sccache \
+    SCCACHE_DIR=/sccache
+
 WORKDIR /app
 
 FROM chef AS planner
@@ -14,10 +20,16 @@ ARG BUILDKIT_SBOM_SCAN_STAGE=true
 RUN apt update && apt install build-essential -y
 
 COPY --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
-RUN cargo build --release --bin atuin-server
+RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cargo build --release --bin atuin-server
 
 
 # Note that this image is VERY minimal. Contains JUST ENOUGH of Debian Trixie to do the job.

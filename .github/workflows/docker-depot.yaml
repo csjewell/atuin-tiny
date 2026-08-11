@@ -17,12 +17,17 @@ jobs:
       contents: read
       # Allow for pushing to packages
       packages: write
+      # Allow for writing attestations for attest action.
+      attestations: write
+      # Allow for writing artifact metadata for attest action.
+      artifact-metadata: write
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
         atuin_version:
-          - v18.17.1
-          - v18.18.1
+#          - v18.17.1
+#          - v18.18.1
           - v18.19.0
 #          - v18.20.0-beta.3
 #          - main
@@ -42,8 +47,9 @@ jobs:
           persist-credentials: false
           fetch-tags: true
 
-      - run: |
-          rm atuin/depot.json
+      # This has to be done so atuin-tiny's can be used.
+      - name: Remove atuin depot.json
+        run: rm atuin/depot.json
 
       - name: Get and set build information
         id: info
@@ -71,8 +77,8 @@ jobs:
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-#        env:
-#          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
           images: |
             ghcr.io/${{ steps.info.outputs.repo_owner }}/atuin-tiny
@@ -112,8 +118,20 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: ./${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}
           context: atuin
-          sbom: true
+          provenance: mode=max,version=v1
           tags: ${{ steps.meta.outputs.tags }}
           annotations: ${{ steps.meta.outputs.annotations }}
           labels: ${{ steps.meta.outputs.labels }}
+
+#      - name: Attest
+#        id: attest
+#        uses: actions/attest@v4
+#        with:
+#          subject-name: ghcr.io/csjewell/atuin-tiny
+#          subject-digest: ${{ steps.output.build.digest }}
+#          push-to-registry: true
+          # I'm not creating an org for this repo. If I was, we could do this.
+#          create-storage-record: false
+
+
 
