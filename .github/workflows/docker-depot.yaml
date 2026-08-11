@@ -17,15 +17,15 @@ jobs:
       contents: read
       # Allow for pushing to packages
       packages: write
-    runs-on: depot-ubuntu-24.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         atuin_version:
           - v18.17.1
           - v18.18.1
           - v18.19.0
-          - v18.20.0-beta.3
-          - main
+#          - v18.20.0-beta.3
+#          - main
     steps:
       - name: Checkout
         id: checkout
@@ -33,13 +33,16 @@ jobs:
 
       - name: Checkout atuin repo
         id: checkout-atuin
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: atuinsh/atuin
           ref: ${{ matrix.atuin_version }}
           path: atuin
+          fetch-depth: 0
+          persist-credentials: false
+          fetch-tags: true
 
-      - name: Get Environment Variables
+      - name: Get and set build information
         id: info
         run: |
           echo "repo_owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
@@ -79,7 +82,7 @@ jobs:
           annotations: |
             org.opencontainers.image.source=https://github.com/csjewell/atuin-tiny
             org.opencontainers.image.url=https://atuin.sh
-            org.opencontainers.image.authors=Curtis Jewell, other image contributors, and Atuin contributors
+            org.opencontainers.image.authors=Curtis Jewell and other contributors
             org.opencontainers.image.version=${{ steps.info.outputs.atuin_version }}
             org.opencontainers.image.licenses=MIT
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
@@ -88,12 +91,13 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/csjewell/atuin-tiny
             org.opencontainers.image.url=https://atuin.sh
-            org.opencontainers.image.authors=Curtis Jewell, other image contributors, and Atuin contributors
+            org.opencontainers.image.authors=Curtis Jewell and other contributors
             org.opencontainers.image.version=${{ steps.info.outputs.atuin_version }}
             org.opencontainers.image.licenses=MIT
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
             org.opencontainers.image.title=Tiny Atuin Server
             org.opencontainers.image.description=Tiny version of Atuin server image
+
       - name: Build and push
         id: build
         uses: depot/build-push-action@98e78adca7817480b8185f474a400b451d74e287 # v1.18.0
@@ -103,11 +107,12 @@ jobs:
           outputs: |
             type=registry,push=true,oci-artifact=true,oci-mediatypes=true,rewrite-timestamp=true
           platforms: linux/amd64,linux/arm64
-          file: ./${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}'
+          file: ./${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}
           context: atuin
           attests: |
             type=provenance,mode=max,version=v1
             type=sbom
           tags: ${{ steps.meta.outputs.tags }}
           annotations: ${{ steps.meta.outputs.annotations }}
-          labels: ${{ steps.meta.outputs.annotations }}
+          labels: ${{ steps.meta.outputs.labels }}
+
