@@ -2,6 +2,9 @@
 ARG BUILDKIT_SBOM_SCAN_CONTEXT=true
 FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
 
+# Ensure working C compile setup (not installed by default in arm64 images)
+RUN apt update && apt install build-essential libssl-dev pkg-config -y
+
 RUN cargo install sccache --locked
 
 ENV RUSTC_WRAPPER=sccache \
@@ -15,9 +18,6 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
-
-# Ensure working C compile setup (not installed by default in arm64 images)
-RUN apt update && apt install build-essential libssl-dev pkg-config -y
 
 COPY --from=planner /app/recipe.json recipe.json
 # The recipe references the [patch.crates-io] axoasset path dependency, but

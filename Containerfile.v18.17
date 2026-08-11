@@ -2,7 +2,12 @@
 ARG BUILDKIT_SBOM_SCAN_CONTEXT=true
 FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
 
-RUN cargo install sccache --locked
+# Ensure working C compile setup (not installed by default in arm64 images)
+RUN apt update && apt install build-essential libssl-dev pkg-config -y
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
+    cargo install sccache --locked
 
 ENV RUSTC_WRAPPER=sccache \
     SCCACHE_DIR=/sccache
@@ -15,9 +20,6 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
-
-# Ensure working C compile setup (not installed by default in arm64 images)
-RUN apt update && apt install build-essential -y
 
 COPY --from=planner /app/recipe.json recipe.json
 RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
