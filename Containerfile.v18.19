@@ -1,5 +1,4 @@
 # syntax=docker/dockerfile:1
-ARG BUILDKIT_SBOM_SCAN_CONTEXT=true
 FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
 
 # Ensure working C compile setup (not installed by default in arm64 images)
@@ -21,7 +20,6 @@ COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
-ARG BUILDKIT_SBOM_SCAN_STAGE=true
 
 COPY --from=planner /app/recipe.json recipe.json
 # The recipe references the [patch.crates-io] axoasset path dependency, but
@@ -39,40 +37,62 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     cargo build --release --bin atuin-server
 
 # Note that this image is VERY minimal. Contains JUST ENOUGH of Debian Trixie to do the job.
-# It uses busybox instead of coreutils, for example.
-FROM gcr.io/distroless/cc-debian13:debug-nonroot AS server
-ARG BUILDKIT_SBOM_SCAN_STAGE=true
+# The debug image uses busybox instead of coreutils, for example.
+FROM gcr.io/distroless/cc-debian13:debug-nonroot AS downloader
+ARG TARGETARCH
+USER root
+COPY --chmod=700 <<'EOF' /download.sh
+#!/busybox/sh
+
+case "$ARCH" in
+  amd64)
+    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-x86_64-musl-8.21.0.tar.xz
+    ;;
+  arm64)
+    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-armv7-musl-8.21.0.tar.xz
+    ;;
+  *)
+    echo "Unknown architechture: $arch"
+    exit 1
+    ;;
+  esac
+  mkdir -p /usr/local/bin
+  cd /usr/local/bin
+  tar xa --no-same-permissions -f /static-curl.tar.xz
+  sha256sum -c SHA256SUMS >/dev/null || exit 1
+EOF
+# Get stunnel's static version of curl, and set up files to copy.
+RUN ["/busybox/ln", "-s", "/busybox/busybox", "/bin/sh"]
+ENV ARCH=$TARGETARCH
+RUN /download.sh \
+ && adduser -D -g 'atuin user' atuin \
+ && mkdir /config \
+ && chown atuin:atuin /config
+
+FROM gcr.io/distroless/cc-debian13:nonroot AS server
 # LABEL \
 #   org.opencontainers.image.source="https://github.com/CSJewell/atuin-tiny" \
 #   org.opencontainers.image.url="https://atuin.sh" \
 #   org.opencontainers.image.licenses="MIT"
 
-# Use stunnel's static version of curl
 USER root
-ADD https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-x86_64-musl-8.21.0.tar.xz /
-RUN ["/busybox/ln", "-s", "/busybox/busybox", "/bin/sh"]
-RUN adduser -D -g 'atuin user' atuin \
- && mkdir /config \
- && chown atuin:atuin /config \
- && ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \
- && mkdir -p /usr/local/bin \
- && cd /usr/local/bin \
- && tar xa --no-same-permissions -f /curl-linux-x86_64-musl-8.21.0.tar.xz \
- && sha256sum -c SHA256SUMS \
- && rm /curl-linux-x86_64-musl-8.21.0.tar.xz SHA256SUMS
 
+COPY --from=downloader /etc/passwd /etc
+COPY --from=downloader /etc/group /etc
+COPY --from=downloader --chown=atuin:atuin /config /config
+COPY --from=downloader --parents /usr/./local/bin/curl /usr
 COPY --from=builder /app/target/release/atuin-server /usr/local/bin
 
 USER atuin
 
-WORKDIR /home/atuin/app
+WORKDIR /home/atuin
 
 ENV TZ=Etc/UTC
 ENV RUST_LOG=atuin_server=info
 ENV ATUIN_CONFIG_DIR=/config
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -fsS -o /dev/null "http://localhost:${ATUIN_PORT:-8888}/healthz"
+  CMD ["/usr/local/bin/curl", "-fsS", "-o", "/dev/null", "http://localhost:8888/healthz"]
 
 ENTRYPOINT ["/usr/local/bin/atuin-server"]
 
