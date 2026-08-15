@@ -13,7 +13,7 @@ https://github.com/GoogleContainerTools/distroless.
 
 Note that the container has a HEALTHCHECK that assumes that Atuin is
 listening on port 8888 (Atuin's default port) - this may not be the
-easiest thing to change without an wrapping Dockerfile, due to
+easiest thing to change without a wrapping Dockerfile, due to
 the fact that there is no shell within the container, so we cannot
 read the port from the environment within the command.
 

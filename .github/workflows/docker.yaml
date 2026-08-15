@@ -1,7 +1,9 @@
-name: Build using regular Github runner
+name: Build using Depot
 
 on:
   workflow_dispatch:
+#  push:
+#    branches: [release]
 
 jobs:
   publish:
@@ -15,15 +17,20 @@ jobs:
       contents: read
       # Allow for pushing to packages
       packages: write
+      # Allow for writing attestations for attest action.
+      attestations: write
+      # Allow for writing artifact metadata for attest action.
+      artifact-metadata: write
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
         atuin_version:
-          - v18.17.1
-          - v18.18.1
+#          - v18.17.1
+#          - v18.18.1
           - v18.19.0
 #          - v18.20.0-beta.3
-          - main
+#          - main
     steps:
       - name: Checkout
         id: checkout
@@ -40,6 +47,10 @@ jobs:
           persist-credentials: false
           fetch-tags: true
 
+      # This has to be done so atuin-tiny's can be used.
+      - name: Remove atuin depot.json
+        run: rm atuin/depot.json
+
       - name: Get and set build information
         id: info
         run: |
@@ -51,14 +62,9 @@ jobs:
           cd atuin
           echo "atuin_version=$( git describe --tags )" >> $GITHUB_OUTPUT
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
-
-      - name: Setup Docker Buildx
-        id: buildx-setup
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
-        with:
-          buildkitd-flags: --debug
+      - name: Setup Depot
+        id: depot-setup
+        uses: depot/setup-action@15c09a5f77a0840ad4bce955686522a257853461 # v1.7.1
 
       - name: Login to container Registry
         id: ghcr-login
@@ -100,21 +106,32 @@ jobs:
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
             org.opencontainers.image.title=Tiny Atuin Server
             org.opencontainers.image.description=Tiny version of Atuin server image
+
       - name: Build and push
         id: build
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        uses: depot/build-push-action@98e78adca7817480b8185f474a400b451d74e287 # v1.18.0
         env:
           SOURCE_DATE_EPOCH: ${{ steps.info.outputs.source_date_epoch }}
         with:
           outputs: |
-            type=registry,push=true,oci-artifact=true,oci-mediatypes=true,rewrite-timestamp=true
+            type=registry,push=true,oci-mediatypes=true,rewrite-timestamp=true,compress=estargz,force-compression=true
           platforms: linux/amd64,linux/arm64
           file: ./${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}
           context: atuin
-          attests: |
-            type=provenance,mode=max,version=v1
-            type=sbom
+          provenance: mode=max,version=v1
           tags: ${{ steps.meta.outputs.tags }}
           annotations: ${{ steps.meta.outputs.annotations }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Attest
+        id: attest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ghcr.io/csjewell/atuin-tiny
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+          # I'm not creating an org for this repo. If I was, we could do this.
+          create-storage-record: false
+
+
 

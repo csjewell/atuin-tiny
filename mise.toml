@@ -1,2 +1,3 @@
 [tools]
 depot = "latest"
+oras = "latest"
