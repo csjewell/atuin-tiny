@@ -114,7 +114,7 @@ jobs:
           SOURCE_DATE_EPOCH: ${{ steps.info.outputs.source_date_epoch }}
         with:
           outputs: |
-            type=registry,push=true,oci-artifact=true,oci-mediatypes=true,rewrite-timestamp=true
+            type=registry,push=true,oci-mediatypes=true,rewrite-timestamp=true,compress=estargz,force-compression=true
           platforms: linux/amd64,linux/arm64
           file: ./${{ fromJson(steps.info.outputs.atuin_info).containerfile[matrix.atuin_version] }}
           context: atuin
@@ -123,15 +123,15 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           labels: ${{ steps.meta.outputs.labels }}
 
-#      - name: Attest
-#        id: attest
-#        uses: actions/attest@v4
-#        with:
-#          subject-name: ghcr.io/csjewell/atuin-tiny
-#          subject-digest: ${{ steps.output.build.digest }}
-#          push-to-registry: true
+      - name: Attest
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/csjewell/atuin-tiny
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
           # I'm not creating an org for this repo. If I was, we could do this.
-#          create-storage-record: false
+          create-storage-record: false
 
 
 
