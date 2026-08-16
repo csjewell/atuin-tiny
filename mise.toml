@@ -1,3 +1,4 @@
 [tools]
 depot = "latest"
+gh = "latest"
 oras = "latest"
