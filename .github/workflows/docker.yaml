@@ -111,7 +111,7 @@ jobs:
           tags: |
             type=raw,priority=950,value=latest-${{ steps.atuin_info.outputs.version }},enable={{is_default_branch}}
             type=raw,priority=949,value={{branch}}-${{ steps.atuin_info.outputs.version }},enable={{is_not_default_branch}}
-            type=raw,priority=948,value=latest${{ steps.info.outputs.alias }},enable=${{ steps.info.outputs.has_alias && steps.info.outputs.is_release }}
+            type=raw,priority=948,value=latest${{ steps.info.outputs.alias || '' }},enable=${{ steps.info.outputs.has_alias && steps.info.outputs.is_release }}
             type=sha,prefix=g,suffix=-${{ steps.atuin_info.outputs.version }}
           annotations: |
             org.opencontainers.image.source=https://github.com/csjewell/atuin-tiny
