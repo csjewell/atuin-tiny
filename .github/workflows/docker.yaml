@@ -42,7 +42,7 @@ jobs:
         run: |
           echo "repo_owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "source_date_epoch=$(date --date="$(date --iso-8601=hours)" +%s)" >> $GITHUB_OUTPUT
-          echo "is_release=${{ github.ref == 'refs/heads/release' }}\"" >> $GITHUB_OUTPUT
+          echo "is_release=${{ github.ref == 'refs/heads/release' }}" >> $GITHUB_OUTPUT
           echo "suffix=$(jq -r '.containerTags."${{ matrix.tag }}".suffix' ./atuin-build-info.json)" >> $GITHUB_OUTPUT
           echo "has_alias=$(jq -r '.containerTags."${{ matrix.tag }}".hasAlias' ./atuin-build-info.json)" >> $GITHUB_OUTPUT
           echo "alias=$(jq -r '.containerTags."${{ matrix.tag }}".alias' ./atuin-build-info.json)" >> $GITHUB_OUTPUT
