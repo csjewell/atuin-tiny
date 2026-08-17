@@ -76,9 +76,7 @@ jobs:
         if: steps.checkout_atuin.outcome == 'skipped'
         id: skipping
         run: |
-          cd context/atuin
           echo "# Build information summary\n Skipping build for container tag ${{ matrix.tag }}\n\n" >> $GITHUB_STEP_SUMMARY
-          cd ../..
 
       # This has to be done so atuin-tiny's can be used.
       # - name: Remove atuin depot.json
