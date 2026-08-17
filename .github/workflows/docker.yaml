@@ -143,7 +143,7 @@ jobs:
           outputs: |
             type=registry,push=true,oci-mediatypes=true,rewrite-timestamp=true,compress=estargz,force-compression=true
           platforms: linux/amd64,linux/arm64
-          file: ./${{ fromJson(steps.info.outputs.build_info).containerfile }}
+          file: ./${{ fromJson(steps.info.outputs.info).containerfile }}
           context: context
           provenance: mode=max,version=v1
           tags: ${{ steps.meta.outputs.tags }}
