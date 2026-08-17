@@ -1,10 +1,68 @@
 {
-  "defaultVersion":"v18.19.0",
-  "containerfile":{
-    "v18.17.1": "Containerfile.v18.17",
-    "v18.18.1": "Containerfile.v18.17",
-    "v18.19.0": "Containerfile.v18.19",
-    "v18.20.0-beta.3": "Containerfile.v18.19",
-    "main": "Containerfile.v18.19"
+  "containerTags": {
+    "18.17.1": {
+      "atuinTag": "v18.17.1",
+      "containerfile": "Containerfile.v18.17",
+      "hasAlias": false,
+      "build": true,
+      "buildOnRequest": false,
+      "buildOnSchedule": false,
+      "suffix": ""
+    },
+    "18.18.1": {
+      "atuinTag": "v18.18.1",
+      "containerfile": "Containerfile.v18.17",
+      "hasAlias": false,
+      "build": true,
+      "buildOnRequest": false,
+      "buildOnSchedule": false,
+      "suffix": ""
+    },
+    "18.19.0": {
+      "atuinTag": "v18.19.0",
+      "containerfile": "Containerfile.v18.19",
+      "hasAlias": true,
+      "alias": "",
+      "build": true,
+      "buildOnRequest": true,
+      "buildOnSchedule": false,
+      "suffix": ""
+    },
+    "18.19.0-nocurl": {
+      "atuinTag": "v18.19.0",
+      "containerfile": "Containerfile.v18.19-nocurl",
+      "hasAlias": true,
+      "alias": "-nocurl",
+      "build": true,
+      "buildOnRequest": true,
+      "buildOnSchedule": false,
+      "suffix": "-nocurl"
+    },
+    "18.20.0-beta.3": {
+      "atuinTag": "v18.20.0-beta.3",
+      "containerfile": "Containerfile.v18.19",
+      "build": true,
+      "buildOnRequest": false,
+      "buildOnSchedule": false,
+      "suffix": ""
+    },
+    "main": {
+      "atuinTag": "main",
+      "containerfile": "Containerfile.v18.19",
+      "isDefault": false,
+      "build": true,
+      "buildOnRequest": false,
+      "buildOnSchedule": true,
+      "suffix": ""
+    },
+    "main-nocurl": {
+      "atuinTag": "main",
+      "containerfile": "Containerfile.v18.19-nocurl",
+      "isDefault": false,
+      "build": true,
+      "buildOnRequest": false,
+      "buildOnSchedule": true,
+      "suffix": "-nocurl"
+    }
   }
 }

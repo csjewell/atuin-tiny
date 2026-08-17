@@ -2,9 +2,6 @@
 FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
 
 # Ensure working C compile setup (not installed by default in arm64 images)
-# RUN apt-get update \
-#  && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-#  && DEBIAN_FRONTEND=noninteractive apt-get install build-essential libssl-dev pkg-config -y
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get upgrade build-essential libssl-dev pkg-config -y
 
@@ -18,7 +15,7 @@ ENV RUSTC_WRAPPER=sccache \
 WORKDIR /app
 
 FROM chef AS planner
-COPY . .
+COPY atuin .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
@@ -30,7 +27,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
     cargo chef cook --release --recipe-path recipe.json
 
-COPY . .
+COPY atuin .
 RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
@@ -43,44 +40,21 @@ FROM gcr.io/distroless/cc-debian13:debug-nonroot AS downloader
 ARG TARGETARCH
 USER root
 
-# We have to do this because the names do not match what Docker thinks TARGETARCH is.
-COPY --chmod=700 <<'EOF' /download.sh
-#!/busybox/sh
-
-case "$ARCH" in
-  amd64)
-    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-x86_64-musl-8.21.0.tar.xz
-    ;;
-  arm64)
-    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-armv7-musl-8.21.0.tar.xz
-    ;;
-  *)
-    echo "Unknown architechture: $arch"
-    exit 1
-    ;;
-  esac
-  mkdir -p /usr/local/bin
-  cd /usr/local/bin
-  tar xa --no-same-permissions -f /static-curl.tar.xz
-  sha256sum -c SHA256SUMS >/dev/null || exit 1
-EOF
 # Get stunnel's static version of curl, and set up files to copy.
+COPY --chmod=700 download-curl.sh /download-curl.sh
 RUN ["/busybox/ln", "-s", "/busybox/busybox", "/bin/sh"]
 ENV ARCH=$TARGETARCH
-RUN /download.sh \
+RUN /download-curl.sh \
  && adduser -D -g 'atuin user' atuin \
  && mkdir /config \
  && chown atuin:atuin /config
 
 FROM gcr.io/distroless/cc-debian13:nonroot AS server
-# LABEL \
-#   org.opencontainers.image.source="https://github.com/CSJewell/atuin-tiny" \
-#   org.opencontainers.image.url="https://atuin.sh" \
-#   org.opencontainers.image.licenses="MIT"
 
 USER root
 
-# Since we do not have a shell in this image, we have to COPY.
+# Since we are not including a shell, we have to copy these files
+# from somewhere that DOES.
 COPY --from=downloader /etc/passwd /etc
 COPY --from=downloader /etc/group /etc
 COPY --from=downloader --chown=atuin:atuin /config /config

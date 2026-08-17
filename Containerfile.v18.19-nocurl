@@ -13,7 +13,7 @@ ENV RUSTC_WRAPPER=sccache \
 WORKDIR /app
 
 FROM chef AS planner
-COPY . .
+COPY atuin .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
@@ -21,13 +21,13 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 # The recipe references the [patch.crates-io] axoasset path dependency, but
 # cargo-chef does not skeleton patched crates, so the real sources are needed
-COPY vendor vendor
+COPY atuin/vendor vendor
 RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
     cargo chef cook --release --recipe-path recipe.json
 
-COPY . .
+COPY atuin .
 RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
@@ -39,10 +39,11 @@ FROM gcr.io/distroless/cc-debian13:debug-nonroot AS downloader
 ARG TARGETARCH
 USER root
 
+# Set up files to copy.
 RUN ["/busybox/ln", "-s", "/busybox/busybox", "/bin/sh"]
 RUN adduser -D -g 'atuin user' atuin \
  && mkdir /config \
- && mkdir /usr/local/bin \
+ && mkdir -p /usr/local/bin \
  && chown atuin:atuin /config
 
 FROM gcr.io/distroless/cc-debian13:nonroot AS server
