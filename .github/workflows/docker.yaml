@@ -60,7 +60,7 @@ jobs:
           echo -e '\nEOF' >> $GITHUB_OUTPUT
 
       - name: Checkout atuin repo
-        if: steps.info.outputs.is_built
+        if: fromJson(steps.info.outputs.is_built)
         id: checkout_atuin
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -72,7 +72,7 @@ jobs:
           fetch-tags: true
 
       - name: Output to summary
-        if: steps.info.outputs.is_built
+        if: fromJson(steps.info.outputs.is_built)
         id: atuin_info
         run: |
           cd context/atuin
@@ -83,18 +83,18 @@ jobs:
           cd ../..
 
       - name: Output to summary
-        if: ! steps.info.outputs.is_built
+        if: ! fromJson(steps.info.outputs.is_built)
         id: skipping
         run: |
           echo -e "## Build information summary\n Skipping build for container tag ${{ matrix.tag }}\n\n" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup Depot
-        if: steps.info.outputs.is_built
+        if: fromJson(steps.info.outputs.is_built)
         id: depot-setup
         uses: depot/setup-action@15c09a5f77a0840ad4bce955686522a257853461 # v1.7.1
 
       - name: Login to container Registry
-        if: steps.info.outputs.is_built
+        if: fromJson(steps.info.outputs.is_built)
         id: ghcr-login
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
@@ -103,7 +103,7 @@ jobs:
           registry: ghcr.io
 
       - name: Docker meta
-        if: steps.info.outputs.is_built
+        if: fromJson(steps.info.outputs.is_built)
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         env:
@@ -116,8 +116,8 @@ jobs:
           tags: |
             type=raw,priority=950,value=latest-${{ steps.atuin_info.outputs.version }},enable={{is_default_branch}}
             type=raw,priority=949,value={{branch}}-${{ steps.atuin_info.outputs.version }},enable={{is_not_default_branch}}
-            type=raw,priority=948,value=latest${{ steps.info.outputs.suffix || '' }},enable=${{ steps.info.outputs.is_latest && steps.info.outputs.is_release }}
-            type=raw,priority=948,value={{branch}}${{ steps.info.outputs.suffix || '' }},enable=${{ steps.info.outputs.is_latest && !steps.info.outputs.is_release }}
+            type=raw,priority=948,value=latest${{ steps.info.outputs.suffix || '' }},enable=${{ fromJson(steps.info.outputs.is_latest) && fromJson(steps.info.outputs.is_release) }}
+            type=raw,priority=947,value={{branch}}${{ steps.info.outputs.suffix || '' }},enable=${{ fromJson(steps.info.outputs.is_latest) && ! fromJson(steps.info.outputs.is_release) }}
             type=sha,prefix=g,suffix=-${{ steps.atuin_info.outputs.version }}
           annotations: |
             org.opencontainers.image.source=https://github.com/csjewell/atuin-tiny
@@ -142,7 +142,8 @@ jobs:
             atuin_tiny.sha=${{ github.sha }}
 
       - name: Build and push
-        if: steps.info.outputs.is_built
+        if: 1 == 0
+        # if: fromJson(steps.info.outputs.is_built)
         id: build
         uses: depot/build-push-action@98e78adca7817480b8185f474a400b451d74e287 # v1.18.0
         env:
@@ -160,7 +161,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Attest
-        if: steps.info.outputs.is_built
+        if: 1 == 0
+        # if: fromJson(steps.info.outputs.is_built)
         id: attest
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
