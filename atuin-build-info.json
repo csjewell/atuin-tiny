@@ -3,7 +3,7 @@
     "18.17.1": {
       "atuinTag": "v18.17.1",
       "containerfile": "Containerfile.v18.17",
-      "hasAlias": false,
+      "isLatest": false,
       "build": true,
       "buildOnRequest": false,
       "buildOnSchedule": false,
@@ -12,7 +12,7 @@
     "18.18.1": {
       "atuinTag": "v18.18.1",
       "containerfile": "Containerfile.v18.17",
-      "hasAlias": false,
+      "isLatest": false,
       "build": true,
       "buildOnRequest": false,
       "buildOnSchedule": false,
@@ -21,8 +21,7 @@
     "18.19.0": {
       "atuinTag": "v18.19.0",
       "containerfile": "Containerfile.v18.19",
-      "hasAlias": true,
-      "alias": "",
+      "isLatest": true,
       "build": true,
       "buildOnRequest": true,
       "buildOnSchedule": false,
@@ -31,8 +30,7 @@
     "18.19.0-nocurl": {
       "atuinTag": "v18.19.0",
       "containerfile": "Containerfile.v18.19-nocurl",
-      "hasAlias": true,
-      "alias": "-nocurl",
+      "isLatest": true,
       "build": true,
       "buildOnRequest": true,
       "buildOnSchedule": false,
@@ -41,6 +39,7 @@
     "18.20.0-beta.3": {
       "atuinTag": "v18.20.0-beta.3",
       "containerfile": "Containerfile.v18.19",
+      "isLatest": false,
       "build": true,
       "buildOnRequest": false,
       "buildOnSchedule": false,
@@ -49,7 +48,7 @@
     "main": {
       "atuinTag": "main",
       "containerfile": "Containerfile.v18.19",
-      "isDefault": false,
+      "isLatest": false,
       "build": true,
       "buildOnRequest": false,
       "buildOnSchedule": true,
@@ -58,7 +57,7 @@
     "main-nocurl": {
       "atuinTag": "main",
       "containerfile": "Containerfile.v18.19-nocurl",
-      "isDefault": false,
+      "isLatest": false,
       "build": true,
       "buildOnRequest": false,
       "buildOnSchedule": true,

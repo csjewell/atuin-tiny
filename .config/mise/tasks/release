@@ -1,0 +1,7 @@
+#!/bin/sh
+
+#MISE description="release the dev branch"
+git switch release
+git merge --ff origin/dev
+git push
+git switch dev
