@@ -3,7 +3,7 @@
 The reason I created this repository is to have a smaller, more minimal
 container to use on hosts that deploy and execute containers.
 
-In my case, I use [fly.io](https://fly.io/machines) as my host, and
+In my case, I use [Fly.io](https://fly.io/machines) as my host, and
 directions on how to use it are shown here, but pull-requests adding
 directions to use this container on other hosts are welcomed.
 
