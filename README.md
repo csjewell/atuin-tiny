@@ -42,8 +42,6 @@ health check.
 
 ## Contributing
 
-See [docs/development-environment.md](docs/development-environment.md) for
-how to set things up to build from this repository.
-
-The `release` branch is only for releasing - do NOT create PR's
-off of it. Create pull requests off of `dev` instead.
+See [docs/contributing.md](docs/contributing.md) for how to contribute,
+including setting things up to build from this repository, and where
+to make pull requests from.
