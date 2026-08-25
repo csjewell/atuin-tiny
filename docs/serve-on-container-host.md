@@ -14,6 +14,8 @@ directions to use this container on other hosts are welcomed.
 I happen to set it up on a Fly Machine, (and have Fly's CLI set up) and here are the
 steps below to do so:
 
+1. Create a new directory, change to it, and save the contents below as `fly.toml`.
+
 ```toml
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 
@@ -69,6 +71,11 @@ primary_region = 'YOUR_REGION_OF_CHOICE' # ord, dfw, ams, lhr, nrt, syd, etceter
   cmd = ["start"]
 
 ```
+
+2. Run `fly deploy`.
+
+3. If you want to have the server answer on your own domain name, run
+`fly certs add <domain.name>` and follow the directions there.
 
 ### Cost
 
