@@ -1,4 +1,6 @@
-# Development Environment
+# Contributing
+
+## Development Environment
 
 The development environment for this repository requires two things:
 
@@ -15,6 +17,10 @@ committed to configure it. Mise will set up current versions of
 the `depot`, `oras`, and `gh` commands to be in the path when you enter the
 checkout directory if you set the configuration to be trusted.
 
+There are also "tasks" in this repository that, while they do not
+*require* mise to be installed, are available to quickly use if it
+is available.
+
 `depot` is used to perform the building on [depot.dev](https://depot.dev) -
 You'll want your own account there if you wish to use their services. I
 will admit that they build container images FAST - especially
@@ -23,5 +29,17 @@ docker/setup-qemu and docker/build-push-action on GitHub Actions.
 
 `oras` and `gh` are used to run the commands in docs/transparency.md
 if you wish to for yourself.
+
+### Helpful commands
+
+`mise run release` is my command to release what's in the current
+`dev` branch by merging it into `release`.
+
+## Creating pull requests
+
+Create pull requests off of the `dev` branch, or the .
+
+The `release` branch is only for releasing - do NOT create PR's
+off of it.
 
 Beyond that, have at it!

@@ -21,36 +21,52 @@ app = 'atuin-YOUR-APP-NAME' # Your fly app name
 primary_region = 'YOUR_REGION_OF_CHOICE' # ord, dfw, ams, lhr, nrt, syd, etcetera...
 
 [build]
-  image = 'ghcr.io/csjewell/atuin-tiny:latest-v18.19.0'
-
-[http_service]
-  internal_port = 8888
-  force_https = true
-  auto_stop_machines = "suspend"
-  auto_start_machines = true
-  min_machines_running = 0
-  [http_service.http_options]
-    idle_timeout = 600
-  [http_service.tls_options]
-    alpn = ["h2", "http/1.1"]
-    versions = ["TLSv1.3"]
-    default_self_signed = false
+  image = 'ghcr.io/csjewell/atuin-tiny:latest-18.19.0-nocurl'
 
 [env]
-  # Has to be this for Fly.io to work at all.
-  ATUIN_HOST="0.0.0.0"
-  ATUIN_PORT=8888
-  ATUIN_DB_URI="sqlite:///database/atuin.db"
+  ATUIN_DB_URI = 'sqlite:///database/atuin.db'
+  # Has to be this for Fly.io to serve it at all.
+  ATUIN_HOST = '0.0.0.0'
   # Set this to false once YOU have registered.
-  ATUIN_OPEN_REGISTRATION=true
+  ATUIN_OPEN_REGISTRATION = 'true'
+  ATUIN_PORT = '8888'
 
 [[mounts]]
   source = 'atuin_data'
   destination = '/database'
 
+[http_service]
+  internal_port = 8888
+  force_https = true
+  auto_stop_machines = 'suspend'
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = 'requests'
+    hard_limit = 250
+    soft_limit = 200
+
+  [http_service.tls_options]
+    alpn = ['h2', 'http/1.1']
+    versions = ['TLSv1.3']
+    default_self_signed = false
+
+[[http_service.checks]]
+  grace_period = "12s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/healthz"
+
 [[vm]]
   size = 'shared-cpu-1x'
-  memory = '256mb'
+  cpus = 1
+  memory_mb = 256
+
+[experimental]
+  # We need to tell the server to actually START, because the Containerfiles do not do that.
+  cmd = ["start"]
 
 ```
 
