@@ -28,6 +28,8 @@ The git hash in the "g" series of tags is referring to the git hash of
 
 ## Using the image
 
+You can self-host this image yourself, or use a container host.
+
 Note that the container has a HEALTHCHECK that assumes that Atuin is
 listening on port 8888 (Atuin's default port) - this may not be the
 easiest thing to change without a wrapping Dockerfile, due to
@@ -38,7 +40,10 @@ See [docs/serve-on-other-ports.md](docs/serve-on-other-ports.md) for
 how to do that.
 
 You can use the -nocurl variant of the image if you do not need the
-health check.
+health check (for example, if your container host implements their own).
+
+For an example using the container host I use, go to
+[docs/serve-on-container-host.md](docs/serve-on-container-host.md)
 
 ## Contributing
 
