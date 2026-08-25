@@ -47,7 +47,7 @@
     },
     "main": {
       "atuinTag": "main",
-      "containerfile": "Containerfile.v18.19",
+      "containerfile": "Containerfile.v18.20",
       "isLatest": false,
       "build": true,
       "buildOnRequest": false,
@@ -56,7 +56,7 @@
     },
     "main-nocurl": {
       "atuinTag": "main",
-      "containerfile": "Containerfile.v18.19-nocurl",
+      "containerfile": "Containerfile.v18.20-nocurl",
       "isLatest": false,
       "build": true,
       "buildOnRequest": false,
