@@ -4,7 +4,7 @@
       "atuinTag": "v18.17.1",
       "containerfile": "Containerfile.v18.17",
       "isLatest": false,
-      "build": true,
+      "build": false,
       "buildOnRequest": false,
       "buildOnSchedule": false,
       "suffix": ""
@@ -13,7 +13,7 @@
       "atuinTag": "v18.18.1",
       "containerfile": "Containerfile.v18.17",
       "isLatest": false,
-      "build": true,
+      "build": false,
       "buildOnRequest": false,
       "buildOnSchedule": false,
       "suffix": ""

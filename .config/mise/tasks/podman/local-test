@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+#MISE description="Test the image from ghcr.io"
+podman run \
+  --cpu-shares 128 \
+  --detach \
+  --env ATUIN_HOST="0.0.0.0" \
+  --env ATUIN_PORT=8888 \
+  --env ATUIN_DB_URI="sqlite:///config/atuin.db" \
+  --env ATUIN_OPEN_REGISTRATION=true \
+  --env ATUIN_CONFIG_DIR=/tmp \
+  --memory-reservation 384m \
+  --name choo \
+  --publish 127.0.0.1:8888:8888 \
+  --pull newer \
+  --replace \
+  --read-only \
+  --read-only-tmpfs \
+  --shm-size 8m \
+  --mount type=bind,src=$HOME/.local/state/atuin,dest=/config,chown=true \
+  ghcr.io/csjewell/atuin-tiny:latest-nocurl start

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+#MISE description="Build the image locally"
+#USAGE flag "-n --nocurl" help="Build the -nocurl image" {
+#USAGE flag "-t --tag <profile>" help="Build the specified image" default="18.19.0" {
+#USAGE   choices "18.19.0" "18.17.1" "18.18.1" "main"
+#USAGE }
+
+if [[ ! -d checkout/atuin ]]; then
+    git clone https://github.com/atuinsh/atuin
+fi
+
+podman build -f Containerfile.v18.19-nocurl context

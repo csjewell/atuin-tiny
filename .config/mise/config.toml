@@ -2,3 +2,4 @@
 depot = "latest"
 gh = "latest"
 oras = "latest"
+shellcheck = "latest"

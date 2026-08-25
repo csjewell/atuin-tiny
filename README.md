@@ -20,8 +20,8 @@ The "Atuin version" that the image contains will usually be specified in the tag
 | _latest_, latest-18.19.0               | Current version                              |
 | _latest-nocurl_, latest-18.19.0-nocurl | Current version, -nocurl variant             |
 | latest-18.20*                          | "Next version" builds for testing            |
-| dev-*                                  | Builds off the "dev" branch of this repo     |
 | g###-*                                 | To hold to a particular image and not update |
+| dev-*                                  | Builds off the "dev" branch of this repo     |
 
 The git hash in the "g" series of tags is referring to the git hash of
 **this** repository that was used to build the image.
@@ -34,9 +34,16 @@ easiest thing to change without a wrapping Dockerfile, due to
 the fact that there is no shell within the container, so we cannot
 read the port from the environment within the command.
 
-Use the -nocurl variations if you do not need the health check.
+See [docs/serve-on-other-ports.md](docs/serve-on-other-ports.md) for
+how to do that.
+
+You can use the -nocurl variant of the image if you do not need the
+health check.
 
 ## Contributing
+
+See [docs/development-environment.md](docs/development-environment.md) for
+how to set things up to build from this repository.
 
 The `release` branch is only for releasing - do NOT create PR's
 off of it. Create pull requests off of `dev` instead.
