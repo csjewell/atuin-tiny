@@ -151,7 +151,7 @@ jobs:
         with:
           project: krf5nlz8bs
           outputs: |
-            type=registry,push=true,oci-mediatypes=true,rewrite-timestamp=true,compress=estargz,force-compression=true
+            type=image,push=true,oci-mediatypes=true,rewrite-timestamp=true,compression=estargz,force-compression=true
           platforms: linux/amd64,linux/arm64
           file: ./${{ fromJson(steps.info.outputs.info).containerfile }}
           context: context
