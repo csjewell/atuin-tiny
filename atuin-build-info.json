@@ -108,15 +108,6 @@
       "buildOnSchedule": false,
       "suffix": "-nocurl"
     },
-    "weekly": {
-      "atuinTag": "weekly",
-      "containerfile": "Containerfile.v18.24",
-      "isLatest": false,
-      "build": true,
-      "buildOnRequest": false,
-      "buildOnSchedule": true,
-      "suffix": ""
-    },
     "main": {
       "atuinTag": "main",
       "containerfile": "Containerfile.v18.24",
