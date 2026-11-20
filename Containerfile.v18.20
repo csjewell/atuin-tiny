@@ -1,16 +1,21 @@
 # syntax=docker/dockerfile:1
-FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.98.0-slim-trixie AS chef
+FROM docker.io/lukemathwalker/cargo-chef:latest-rust-slim-bookworm@sha256:e406ad0baa7266cee09ca9f62f30d7ed330bdb25be9f337ff8090e7ae215f7fd AS chef
+
+WORKDIR /app
 
 # Ensure working C compile setup (not installed by default in arm64 images)
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get upgrade build-essential libssl-dev pkg-config -y
 
+# Build with the toolchain pinned in rust-toolchain.toml, not the image's.
+COPY atuin/rust-toolchain.toml .
+RUN rustup toolchain install --profile minimal --no-self-update \
+      "$(sed -n 's/^ *channel *= *"\([^"]*\)".*/\1/p' rust-toolchain.toml)"
+
 RUN cargo install sccache --locked
 
 ENV RUSTC_WRAPPER=sccache \
     SCCACHE_DIR=/sccache
-
-WORKDIR /app
 
 FROM chef AS planner
 COPY atuin .
