@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #MISE description="Build the image locally"
-#USAGE flag "-n --nocurl" help="Build the -nocurl image" {
+#USAGE flag "-n --nocurl" help="Build the -nocurl version of the image" {
 #USAGE flag "-t --tag <profile>" help="Build the specified image" default="18.19.0" {
 #USAGE   choices "18.19.0" "18.17.1" "18.18.1" "main"
 #USAGE }
