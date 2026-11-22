@@ -91,7 +91,7 @@
       "suffix": ""
     },
     "18.25.0": {
-      "atuinTag": "v18.25.0",
+      "atuinTag": "v18.25.1",
       "containerfile": "Containerfile.v18.24",
       "isLatest": true,
       "build": true,
@@ -100,7 +100,7 @@
       "suffix": ""
     },
     "18.25.0-nocurl": {
-      "atuinTag": "v18.25.0",
+      "atuinTag": "v18.25.1",
       "containerfile": "Containerfile.v18.24-nocurl",
       "isLatest": true,
       "build": true,
