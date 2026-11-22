@@ -1,13 +1,35 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 #MISE description="Build the image locally"
-#USAGE flag "-n --nocurl" help="Build the -nocurl version of the image" {
-#USAGE flag "-t --tag <profile>" help="Build the specified image" default="18.19.0" {
-#USAGE   choices "18.19.0" "18.17.1" "18.18.1" "main"
+#USAGE flag "-n --nocurl" help="Build the -nocurl version of the image"
+#USAGE flag "-f --file <file>" help="Build using the specified version's Containerfile" default="v18.24" {
+#USAGE   choices "v18.17" "v18.19" "v18.20" "v18.24"
+#USAGE }
+#USAGE flag "-t --tag <tag>" help="Build the specified image" default="v18.25.1" {
+#USAGE   choices "v18.17.1" "v18.18.1" "v18.19.0" "v18.20.0" "v18.21.0" "v18.22.0" "v18.23.0" "v18.24.8" "v18.25.1" "main"
 #USAGE }
 
-if [[ ! -d checkout/atuin ]]; then
+if [[ -d context/atuin ]]; then
+  (
+    cd context/atuin
+    git switch main; git pull
+  )
+else
+  (
+    cd context
     git clone https://github.com/atuinsh/atuin
+  )
 fi
 
-podman build -f Containerfile.v18.19-nocurl context
+if [[ "${usage_tag:-v18.25.1}" != "main" ]]; then
+  (
+    cd context/atuin
+    git switch ${usage_tag:-v18.25.1} --detach
+  )
+fi
+
+if [ "${usage_nocurl:-false}" = "true" ]; then
+  nocurl=-nocurl
+fi
+
+podman build -f "Containerfile.${usage_file:-v18.24}${nocurl:-}" context
