@@ -17,9 +17,15 @@ The "Atuin version" that the image contains will usually be specified in the tag
 | -------------------------------------- | -------------------------------------------- |
 | latest-18.17.1                         | 18.17 series (to replace w/o updating)       |
 | latest-18.18.1                         | 18.18 series (to replace w/o updating)       |
-| _latest_, latest-18.19.0               | Current version                              |
-| _latest-nocurl_, latest-18.19.0-nocurl | Current version, -nocurl variant             |
-| latest-18.20*                          | "Next version" builds for testing            |
+| latest-18.19.0                         | 18.19 series (to replace w/o updating)       |
+| latest-18.20.0                         | 18.20 series (to replace w/o updating)       |
+| latest-18.21.0                         | 18.21 series (to replace w/o updating)       |
+| latest-18.22.0                         | 18.22 series (to replace w/o updating)       |
+| latest-18.23.0                         | 18.23 series (to replace w/o updating)       |
+| latest-18.24.8                         | 18.24 series (to replace w/o updating)       |
+| _latest_, latest-18.25.0               | Current version                              |
+| _latest-nocurl_, latest-18.25.0-nocurl | Current version, -nocurl variant             |
+| latest-18.25*                          | "Next version" builds for testing            |
 | g###-*                                 | To hold to a particular image and not update |
 | dev-*                                  | Builds off the "dev" branch of this repo     |
 

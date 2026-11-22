@@ -37,7 +37,8 @@ if you wish to for yourself.
 
 ## Creating pull requests
 
-Create pull requests off of the `dev` branch, or the .
+Create pull requests off of the `dev` branch, please. They
+will be easier to merge back to that branch.
 
 The `release` branch is only for releasing - do NOT create PR's
 off of it.
