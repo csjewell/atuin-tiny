@@ -1,0 +1,4 @@
+#!/bin/sh
+
+#MISE description="Build the release branch containers"
+gh workflow run docker.yaml --ref release

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+#MISE description="Build the dev branch containers"
+gh workflow run docker.yaml --ref dev
