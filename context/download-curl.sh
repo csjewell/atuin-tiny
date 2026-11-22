@@ -2,10 +2,10 @@
 
 case "$ARCH" in
   amd64)
-    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-x86_64-musl-8.21.0.tar.xz
+    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.23.0-1/curl-linux-x86_64-musl-8.23.0-1.tar.xz
     ;;
   arm64)
-    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.21.0/curl-linux-armv7-musl-8.21.0.tar.xz
+    wget -O /static-curl.tar.xz https://github.com/stunnel/static-curl/releases/download/8.23.0-1/curl-linux-armv7-musl-8.23.0-1.tar.xz
     ;;
   *)
     echo "Unknown architechture: $arch"
