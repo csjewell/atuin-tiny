@@ -5,7 +5,6 @@
       "containerfile": "Containerfile.v18.17",
       "isLatest": false,
       "build": false,
-      "buildOnRequest": false,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -14,7 +13,6 @@
       "containerfile": "Containerfile.v18.17",
       "isLatest": false,
       "build": false,
-      "buildOnRequest": false,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -23,16 +21,14 @@
       "containerfile": "Containerfile.v18.19",
       "isLatest": false,
       "build": true,
-      "buildOnRequest": true,
       "buildOnSchedule": false,
       "suffix": ""
     },
     "18.19.0-nocurl": {
       "atuinTag": "v18.19.0",
       "containerfile": "Containerfile.v18.19-nocurl",
-      "isLatest": true,
-      "build": true,
-      "buildOnRequest": true,
+      "isLatest": false,
+      "build": false,
       "buildOnSchedule": false,
       "suffix": "-nocurl"
     },
@@ -40,8 +36,7 @@
       "atuinTag": "v18.20.0",
       "containerfile": "Containerfile.v18.20",
       "isLatest": false,
-      "build": true,
-      "buildOnRequest": true,
+      "build": false,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -49,8 +44,7 @@
       "atuinTag": "v18.20.0",
       "containerfile": "Containerfile.v18.20-nocurl",
       "isLatest": false,
-      "build": true,
-      "buildOnRequest": true,
+      "build": false,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -58,8 +52,7 @@
       "atuinTag": "v18.21.0",
       "containerfile": "Containerfile.v18.20",
       "isLatest": false,
-      "build": true,
-      "buildOnRequest": true,
+      "build": false,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -67,8 +60,7 @@
       "atuinTag": "v18.22.0",
       "containerfile": "Containerfile.v18.20",
       "isLatest": false,
-      "build": true,
-      "buildOnRequest": true,
+      "build": false,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -77,7 +69,6 @@
       "containerfile": "Containerfile.v18.20",
       "isLatest": false,
       "build": true,
-      "buildOnRequest": true,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -86,7 +77,6 @@
       "containerfile": "Containerfile.v18.24",
       "isLatest": false,
       "build": true,
-      "buildOnRequest": true,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -95,7 +85,6 @@
       "containerfile": "Containerfile.v18.24",
       "isLatest": true,
       "build": true,
-      "buildOnRequest": true,
       "buildOnSchedule": false,
       "suffix": ""
     },
@@ -104,7 +93,6 @@
       "containerfile": "Containerfile.v18.24-nocurl",
       "isLatest": true,
       "build": true,
-      "buildOnRequest": true,
       "buildOnSchedule": false,
       "suffix": "-nocurl"
     },
@@ -113,7 +101,6 @@
       "containerfile": "Containerfile.v18.24",
       "isLatest": false,
       "build": true,
-      "buildOnRequest": false,
       "buildOnSchedule": true,
       "suffix": ""
     },
@@ -122,7 +109,6 @@
       "containerfile": "Containerfile.v18.24-nocurl",
       "isLatest": false,
       "build": true,
-      "buildOnRequest": false,
       "buildOnSchedule": true,
       "suffix": "-nocurl"
     }

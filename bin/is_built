@@ -8,7 +8,14 @@ case "$GITHUB_EVENT_NAME" in
     echo "is_built=$(jq -r '.buildOnSchedule' -)"
     ;;
   workflow_dispatch)
-    echo "is_built=$(jq -r '.buildOnRequest' -)"
+    case "$1" in
+      true)
+        echo "is_built=true"
+        ;;
+      *)
+        echo "is_built=$(jq -r '.is_latest' -)"
+        ;;
+      esac
     ;;
   *)
     exit 1

@@ -2,12 +2,18 @@ name: Build and deploy containers
 run-name: Deploy containers
 on:
   workflow_dispatch:
+    inputs:
+      all:
+        description: 'True to build all containers'
+        default: false
+        type: boolean
   schedule:
     - cron: '49 4 * * 0'
       timezone: "America/Denver"
   push:
     branches: [release]
     paths-ignore:
+      - 'bin/is_built'
       - 'docs/**'
       - '.config/**'
       - README.md
@@ -62,7 +68,7 @@ jobs:
           echo "is_release=${{ github.ref == 'refs/heads/release' }}" >> $GITHUB_OUTPUT
           echo "is_latest=$(jq -r '.containerTags."${{ matrix.tag }}".isLatest' ./atuin-build-info.json)" >> $GITHUB_OUTPUT
           echo "suffix=$(jq -r '.containerTags."${{ matrix.tag }}".suffix' ./atuin-build-info.json)" >> $GITHUB_OUTPUT
-          jq '.containerTags."${{ matrix.tag }}"' ./atuin-build-info.json | bin/is_built >> $GITHUB_OUTPUT
+          jq '.containerTags."${{ matrix.tag }}"' ./atuin-build-info.json | bin/is_built "${{ github.events.inputs.all }}" >> $GITHUB_OUTPUT
           echo 'info<<EOF' >> $GITHUB_OUTPUT
           jq '.containerTags."${{ matrix.tag }}"' ./atuin-build-info.json >> $GITHUB_OUTPUT
           echo -e '\nEOF' >> $GITHUB_OUTPUT
