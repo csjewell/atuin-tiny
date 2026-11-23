@@ -10,9 +10,11 @@ case "$GITHUB_EVENT_NAME" in
   workflow_dispatch)
     case "$1" in
       true)
+        echo "Workflow Dispatch: $1" >&2
         echo "is_built=true"
         ;;
       *)
+        echo "Workflow Dispatch: $1" >&2
         echo "is_built=$(jq -r '.is_latest' -)"
         ;;
       esac
