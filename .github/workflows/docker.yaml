@@ -4,9 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       all:
-        description: 'True to build all containers'
-        default: false
-        type: boolean
+        description: 'Set to "Yes" to build all containers'
+        default: 'No'
+        required: true
+        type: choice
+        options:
+          - 'Yes'
+          - 'No'
   schedule:
     - cron: '49 4 * * 0'
       timezone: "America/Denver"
@@ -67,11 +71,11 @@ jobs:
           echo "source_date_epoch=$(date --date="$(date --iso-8601=hours)" +%s)" >> $GITHUB_OUTPUT
           echo "is_release=${{ github.ref == 'refs/heads/release' }}" >> $GITHUB_OUTPUT
           echo "is_latest=$(jq -r '.containerTags."${{ matrix.tag }}".isLatest' ./atuin-build-info.json)" >> $GITHUB_OUTPUT
-          echo "suffix=$(jq -r '.containerTags."${{ matrix.tag }}".suffix' ./atuin-build-info.json)" >> $GITHUB_OUTPUT
-          jq '.containerTags."${{ matrix.tag }}"' ./atuin-build-info.json | bin/is_built "${{ github.events.inputs.all }}" >> $GITHUB_OUTPUT
+          jq '.containerTags."${{ matrix.tag }}"' ./atuin-build-info.json | bin/is_built "${{ inputs.all }}" >> $GITHUB_OUTPUT
           echo 'info<<EOF' >> $GITHUB_OUTPUT
           jq '.containerTags."${{ matrix.tag }}"' ./atuin-build-info.json >> $GITHUB_OUTPUT
           echo -e '\nEOF' >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
 
       - name: Checkout atuin repo
         if: fromJson(steps.info.outputs.is_built)
@@ -90,11 +94,12 @@ jobs:
         id: atuin_info
         run: |
           cd context/atuin
-          echo "version=$( git describe --tags | sed -e 's/^v//' )${{ steps.info.outputs.suffix || '' }}" >> $GITHUB_OUTPUT
+          echo "version=$( git describe --tags | sed -e 's/^v//' )${{ fromJson(steps.info.outputs.info).suffix }}" >> $GITHUB_OUTPUT
           echo "oci_version=$( git describe --tags | sed -e 's/^v//' )" >> $GITHUB_OUTPUT
           echo "sha=$( git rev-parse HEAD )" >> $GITHUB_OUTPUT
           echo -e "## Build information summary\nBuilding container for atuin version $( git describe --tags )\n\n" >> $GITHUB_STEP_SUMMARY
           cd ../..
+          cat $GITHUB_OUTPUT
 
       - name: Output to summary if skipped
         if: ${{ ! fromJson(steps.info.outputs.is_built) }}
@@ -130,8 +135,8 @@ jobs:
           tags: |
             type=raw,priority=950,value=latest-${{ steps.atuin_info.outputs.version }},enable={{is_default_branch}}
             type=raw,priority=949,value={{branch}}-${{ steps.atuin_info.outputs.version }},enable={{is_not_default_branch}}
-            type=raw,priority=948,value=latest${{ steps.info.outputs.suffix || '' }},enable=${{ fromJson(steps.info.outputs.is_latest) && fromJson(steps.info.outputs.is_release) }}
-            type=raw,priority=947,value={{branch}}${{ steps.info.outputs.suffix || '' }},enable=${{ fromJson(steps.info.outputs.is_latest) && ! fromJson(steps.info.outputs.is_release) }}
+            type=raw,priority=948,value=latest${{ fromJson(steps.info.outputs.info).suffix }},enable=${{ fromJson(steps.info.outputs.is_latest) && fromJson(steps.info.outputs.is_release) }}
+            type=raw,priority=947,value={{branch}}${{ fromJson(steps.info.outputs.info).suffix }},enable=${{ fromJson(steps.info.outputs.is_latest) && ! fromJson(steps.info.outputs.is_release) }}
             type=sha,prefix=g,suffix=-${{ steps.atuin_info.outputs.version }},enable={{is_default_branch}}
             type=sha,prefix={{branch}}-g,suffix=-${{ steps.atuin_info.outputs.version }},enable={{is_not_default_branch}}
           annotations: |

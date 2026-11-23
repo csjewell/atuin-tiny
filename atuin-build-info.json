@@ -80,7 +80,7 @@
       "buildOnSchedule": false,
       "suffix": ""
     },
-    "18.25.0": {
+    "18.25.1": {
       "atuinTag": "v18.25.1",
       "containerfile": "Containerfile.v18.24",
       "isLatest": true,
@@ -88,7 +88,7 @@
       "buildOnSchedule": false,
       "suffix": ""
     },
-    "18.25.0-nocurl": {
+    "18.25.1-nocurl": {
       "atuinTag": "v18.25.1",
       "containerfile": "Containerfile.v18.24-nocurl",
       "isLatest": true,
