@@ -46,7 +46,7 @@
       "isLatest": false,
       "build": false,
       "buildOnSchedule": false,
-      "suffix": ""
+      "suffix": "-nocurl"
     },
     "18.21.0": {
       "atuinTag": "v18.21.0",
