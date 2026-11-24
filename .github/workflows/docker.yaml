@@ -55,10 +55,13 @@ jobs:
           - 18.22.0
           - 18.23.0
           - 18.24.8
+          - 18.24.8-nocurl
           - 18.25.1
           - 18.25.1-nocurl
           - main
           - main-nocurl
+      fail-fast: true
+      max-parallel: 1
     steps:
       - name: Checkout
         id: checkout
@@ -159,7 +162,13 @@ jobs:
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
             org.opencontainers.image.title=Tiny Atuin Server
             org.opencontainers.image.description=Tiny version of Atuin server image
-            atuin_tiny.sha=${{ github.sha }}
+            dev.csjewell.atuin_tiny.sha=${{ github.sha }}
+
+      - name: Get source image for nocurl images
+        if: fromJson(steps.info.outputs.is_built)
+        id: source
+        run: |
+          echo "image=${{ fromJson(steps.meta.outputs.json).tags[0] }}" | sed -e 's/-nocurl$//' | tee -a $GITHUB_OUTPUT
 
       - name: Build and push
         if: fromJson(steps.info.outputs.is_built)
@@ -174,6 +183,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: ./${{ fromJson(steps.info.outputs.info).containerfile }}
           context: context
+          build-args: |
+            SOURCE_IMAGE=${{ steps.source.outputs.image }}
           provenance: mode=max,version=v1
           tags: ${{ steps.meta.outputs.tags }}
           annotations: ${{ steps.meta.outputs.annotations }}

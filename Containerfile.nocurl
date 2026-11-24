@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1
+
+# This is because COPY --from=$VAR is not allowed
+ARG SOURCE_IMAGE
+FROM $SOURCE_IMAGE AS source
+
+# Note that this image is VERY minimal. Contains JUST ENOUGH of Debian Trixie to do the job.
+# The debug image uses busybox instead of coreutils, for example.
+FROM gcr.io/distroless/cc-debian13:debug-nonroot AS downloader
+ARG TARGETARCH
+USER root
+
+# Set up files to copy.
+RUN ["/busybox/ln", "-s", "/busybox/busybox", "/bin/sh"]
+RUN adduser -D -g 'atuin user' atuin \
+ && mkdir /config \
+ && mkdir -p /usr/local/bin \
+ && chown atuin:atuin /config
+
+FROM gcr.io/distroless/cc-debian13:nonroot AS server
+
+USER root
+
+# Since we are not including a shell, we have to copy these files
+# from somewhere that DOES.
+COPY --from=downloader /etc/passwd /etc
+COPY --from=downloader /etc/group /etc
+COPY --from=downloader --chown=atuin:atuin /config /config
+COPY --from=downloader --parents /usr/./local/bin /usr
+COPY --from=source /usr/local/bin/atuin-server /usr/local/bin
+
+USER atuin
+
+WORKDIR /home/atuin
+
+ENV TZ=Etc/UTC
+ENV RUST_LOG=atuin_server=info
+ENV ATUIN_CONFIG_DIR=/config
+
+ENTRYPOINT ["/usr/local/bin/atuin-server"]

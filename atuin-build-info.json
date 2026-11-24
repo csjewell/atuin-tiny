@@ -26,7 +26,7 @@
     },
     "18.19.0-nocurl": {
       "atuinTag": "v18.19.0",
-      "containerfile": "Containerfile.v18.19-nocurl",
+      "containerfile": "Containerfile.nocurl",
       "isLatest": false,
       "build": false,
       "buildOnSchedule": false,
@@ -42,7 +42,7 @@
     },
     "18.20.0-nocurl": {
       "atuinTag": "v18.20.0",
-      "containerfile": "Containerfile.v18.20-nocurl",
+      "containerfile": "Containerfile.nocurl",
       "isLatest": false,
       "build": false,
       "buildOnSchedule": false,
@@ -80,6 +80,14 @@
       "buildOnSchedule": false,
       "suffix": ""
     },
+    "18.24.8-nocurl": {
+      "atuinTag": "v18.24.8",
+      "containerfile": "Containerfile.nocurl",
+      "isLatest": false,
+      "build": true,
+      "buildOnSchedule": false,
+      "suffix": "-nocurl"
+    },
     "18.25.1": {
       "atuinTag": "v18.25.1",
       "containerfile": "Containerfile.v18.24",
@@ -90,7 +98,7 @@
     },
     "18.25.1-nocurl": {
       "atuinTag": "v18.25.1",
-      "containerfile": "Containerfile.v18.24-nocurl",
+      "containerfile": "Containerfile.nocurl",
       "isLatest": true,
       "build": true,
       "buildOnSchedule": false,
@@ -106,7 +114,7 @@
     },
     "main-nocurl": {
       "atuinTag": "main",
-      "containerfile": "Containerfile.v18.24-nocurl",
+      "containerfile": "Containerfile.nocurl",
       "isLatest": false,
       "build": true,
       "buildOnSchedule": true,

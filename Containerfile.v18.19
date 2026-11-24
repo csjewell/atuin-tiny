@@ -1,16 +1,21 @@
 # syntax=docker/dockerfile:1
 FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.97.0-slim-trixie AS chef
+ARG TARGETARCH
+ENV ARCH=$TARGETARCH
+
+WORKDIR /app
 
 # Ensure working C compile setup (not installed by default in arm64 images)
-RUN apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get upgrade build-essential libssl-dev pkg-config -y
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
+    --mount=type=cache,sharing=locked,target=/var/lib/apt \
+    apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade build-essential libssl-dev pkg-config -y
 
-RUN cargo install sccache --locked
+RUN --mount=type=cache,sharing=locked,target=/usr/local/cargo/registry \
+    --mount=type=cache,sharing=locked,target=/usr/local/cargo/git \
+    cargo install sccache --locked
 
 ENV RUSTC_WRAPPER=sccache \
     SCCACHE_DIR=/sccache
-
-WORKDIR /app
 
 FROM chef AS planner
 COPY atuin .
@@ -22,15 +27,15 @@ COPY --from=planner /app/recipe.json recipe.json
 # The recipe references the [patch.crates-io] axoasset path dependency, but
 # cargo-chef does not skeleton patched crates, so the real sources are needed
 COPY atuin/vendor vendor
-RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
-    --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
-    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+RUN --mount=type=cache,sharing=locked,target=/usr/local/cargo/registry \
+    --mount=type=cache,sharing=locked,target=/usr/local/cargo/git \
+    --mount=type=cache,sharing=locked,target=$SCCACHE_DIR \
     cargo chef cook --release --recipe-path recipe.json
 
 COPY atuin .
-RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
-    --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
-    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+RUN --mount=type=cache,sharing=locked,target=/usr/local/cargo/registry \
+    --mount=type=cache,sharing=locked,target=/usr/local/cargo/git \
+    --mount=type=cache,sharing=locked,target=$SCCACHE_DIR \
     cargo build --release --bin atuin-server
 
 # Note that this image is VERY minimal. Contains JUST ENOUGH of Debian Trixie to do the job.
