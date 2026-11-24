@@ -75,31 +75,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 ENTRYPOINT ["/usr/local/bin/atuin-server"]
 
- ENV RUSTC_WRAPPER=sccache \
-     SCCACHE_DIR=/sccache
-@@ -23,22 +29,19 @@ RUN cargo chef prepare --recipe-path recipe.json
- 
- FROM chef AS builder
- 
--# Ensure working C compile setup (not installed by default in arm64 images)
--RUN apt update && apt install build-essential libssl-dev pkg-config -y
--
- COPY --from=planner /app/recipe.json recipe.json
- # The recipe references the [patch.crates-io] axoasset path dependency, but
- # cargo-chef does not skeleton patched crates, so the real sources are needed
- COPY atuin/vendor vendor
--RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
--    --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
--    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-     cargo chef cook --release --recipe-path recipe.json
- 
- COPY atuin .
--RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
--    --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
--    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-+RUN --mount=type=cache,sharing=locked,target=/usr/local/cargo/registry \
-+    --mount=type=cache,sharing=locked,target=/usr/local/cargo/git \
-+    --mount=type=cache,sharing=locked,target=$SCCACHE_DIR \
-     cargo build --release --bin atuin-server
- 
- # Note that this image is VERY minimal. Contains JUST ENOUGH of Debian Trixie to do the job.

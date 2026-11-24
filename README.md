@@ -9,6 +9,17 @@ build it, and then copy it into the 'cc-debian13:nonroot'
 version of the distroless image
 [that Google creates](https://github.com/GoogleContainerTools/distroless).
 
+## Licensing notes
+
+The MIT license in this repository only applies to the code that is checked
+out from this repository - it does not apply to Atuin itself, nor to the
+build of curl used in the images, nor to the version of fig used to help
+build some of the images. (They are themselves MIT-licensed, except for curl
+itself, which looks like it has its own license that is itself permissive
+along the lines of the MIT license, but that does not invalidate the claim
+above. I'm only taking credit for what is in this repository - not even the
+code in the containers themselves.)
+
 ## Supported tags
 
 The "Atuin version" that the image contains will usually be specified in the tag.
@@ -31,6 +42,9 @@ The "Atuin version" that the image contains will usually be specified in the tag
 
 The git hash in the "g" series of tags is referring to the git hash of
 **this** repository that was used to build the image.
+
+There are other -nocurl variants built, as well, and I can add more if that is
+needed.
 
 ## Using the image
 
